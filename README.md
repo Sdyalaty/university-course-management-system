@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # University Course Management System
 
 ## Project Overview
@@ -589,3 +590,7 @@ This project is for educational purposes as part of the OOP with Java course.
 ---
 
 **Good luck with your project! Remember: Communication and collaboration are key to success!**
+=======
+# university-course-management-system
+This project has to do with the university, and has three users(Admin, Instructor and student) 
+>>>>>>> d844b098594bcb0ee1b6430309d0a3c1cc4a7865
