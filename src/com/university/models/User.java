@@ -83,4 +83,9 @@ public abstract class User {
                 ", fullName='" + fullName + '\'' +
                 '}';
     }
+
+    public void displayMenu() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'displayMenu'");
+    }
 }

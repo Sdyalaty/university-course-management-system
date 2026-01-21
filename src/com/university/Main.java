@@ -1,40 +1,64 @@
 package com.university;
 
 import com.university.auth.AuthenticationService;
+import com.university.auth.AuthorizationService;
+import com.university.auth.Permission;
+
+import com.university.models.Admin;
+import com.university.models.Instructor;
+import com.university.models.Student;
+import com.university.models.User;
+
+import com.university.services.UserService;
+
 import java.util.Scanner;
 
 /**
  * Main entry point for the University Management System.
- * 
- * TODO: Students should implement the menu system and integrate all components.
+ * Demonstrates authentication, authorization, and file-based persistence.
  */
 public class Main {
+
+    private static final String USER_DATA_FILE = "users.dat";
+
     private static Scanner scanner = new Scanner(System.in);
-    private static AuthenticationService authService = new AuthenticationService();
-    
+    private static UserService userService = new UserService();
+    private static AuthenticationService authService = new AuthenticationService(userService);
+    private static AuthorizationService authorizationService = new AuthorizationService();
+
     public static void main(String[] args) {
-        System.out.println("========================================");
-        System.out.println("University Course Management System");
-        System.out.println("========================================\n");
-        
-        // TODO: Initialize data repository
-        // TODO: Load existing data
-        
+
+        // ================================
+        // Load users from file
+        // ================================
+        userService.loadFromFile(USER_DATA_FILE);
+
+        // ================================
+        // If no users, create sample users
+        // ================================
+        if (userService.getAllUsers().isEmpty()) {
+            initSampleUsers();
+        }
+
+        // ================================
+        // Main console loop
+        // ================================
         boolean running = true;
         while (running) {
+
             if (!authService.isLoggedIn()) {
                 showLoginMenu();
             } else {
-                String role = authService.getCurrentUser().getRole();
-                switch (role) {
+                User currentUser = authService.getCurrentUser();
+                switch (currentUser.getRole()) {
                     case "ADMIN":
-                        showAdminMenu();
+                        showAdminMenu(currentUser);
                         break;
                     case "INSTRUCTOR":
-                        showInstructorMenu();
+                        showInstructorMenu(currentUser);
                         break;
                     case "STUDENT":
-                        showStudentMenu();
+                        showStudentMenu(currentUser);
                         break;
                     default:
                         System.out.println("Unknown role. Logging out.");
@@ -42,21 +66,31 @@ public class Main {
                 }
             }
         }
-        
+
         scanner.close();
     }
-    
-    /**
-     * Display login menu.
-     */
+
+    // ================================
+    // Sample users
+    // ================================
+    private static void initSampleUsers() {
+        userService.addUser(new Admin("A001", "admin", "admin123", "admin@uni.com", "System Admin"));
+        userService.addUser(new Instructor("I001", "john", "john123", "john@uni.com", "John Instructor"));
+        userService.addUser(new Student("S001", "alice", "alice123", "alice@uni.com", "Alice Student"));
+        userService.saveToFile(USER_DATA_FILE);
+    }
+
+    // ================================
+    // Login menu
+    // ================================
     private static void showLoginMenu() {
         System.out.println("\n=== Login Menu ===");
         System.out.println("1. Login");
         System.out.println("2. Exit");
         System.out.print("Choose an option: ");
-        
+
         int choice = getIntInput();
-        
+
         switch (choice) {
             case 1:
                 performLogin();
@@ -69,36 +103,32 @@ public class Main {
                 System.out.println("Invalid option. Please try again.");
         }
     }
-    
-    /**
-     * Perform login operation.
-     */
+
     private static void performLogin() {
         System.out.print("Username: ");
         String username = scanner.nextLine();
         System.out.print("Password: ");
         String password = scanner.nextLine();
-        
-        // TODO: Implement actual login with AuthenticationService
-        System.out.println("Login functionality not yet implemented.");
+
+        try {
+            authService.login(username, password);
+            User user = authService.getCurrentUser();
+            System.out.println("\nLogin successful!");
+            user.displayInfo();
+            System.out.println("Role: " + user.getRole());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Login failed: " + e.getMessage());
+        }
     }
-    
-    /**
-     * Display admin menu.
-     */
-    private static void showAdminMenu() {
-        System.out.println("\n=== Admin Menu ===");
-        System.out.println("1. Manage Users");
-        System.out.println("2. Manage Courses");
-        System.out.println("3. View All Enrollments");
-        System.out.println("4. Generate Reports");
-        System.out.println("5. Send Announcements");
-        System.out.println("6. Logout");
+
+    // ================================
+    // Admin menu
+    // ================================
+    private static void showAdminMenu(User admin) {
+        admin.displayMenu();
         System.out.print("Choose an option: ");
-        
         int choice = getIntInput();
-        
-        // TODO: Implement admin menu options
+
         switch (choice) {
             case 6:
                 authService.logout();
@@ -108,22 +138,15 @@ public class Main {
                 System.out.println("Feature not yet implemented.");
         }
     }
-    
-    /**
-     * Display instructor menu.
-     */
-    private static void showInstructorMenu() {
-        System.out.println("\n=== Instructor Menu ===");
-        System.out.println("1. View My Courses");
-        System.out.println("2. View Course Roster");
-        System.out.println("3. Assign Grades");
-        System.out.println("4. Generate Teaching Load Report");
-        System.out.println("5. Logout");
+
+    // ================================
+    // Instructor menu
+    // ================================
+    private static void showInstructorMenu(User instructor) {
+        instructor.displayMenu();
         System.out.print("Choose an option: ");
-        
         int choice = getIntInput();
-        
-        // TODO: Implement instructor menu options
+
         switch (choice) {
             case 5:
                 authService.logout();
@@ -133,24 +156,15 @@ public class Main {
                 System.out.println("Feature not yet implemented.");
         }
     }
-    
-    /**
-     * Display student menu.
-     */
-    private static void showStudentMenu() {
-        System.out.println("\n=== Student Menu ===");
-        System.out.println("1. View Available Courses");
-        System.out.println("2. Enroll in Course");
-        System.out.println("3. Drop Course");
-        System.out.println("4. View My Enrollments");
-        System.out.println("5. View My Grades");
-        System.out.println("6. Generate Transcript");
-        System.out.println("7. Logout");
+
+    // ================================
+    // Student menu
+    // ================================
+    private static void showStudentMenu(User student) {
+        student.displayMenu();
         System.out.print("Choose an option: ");
-        
         int choice = getIntInput();
-        
-        // TODO: Implement student menu options
+
         switch (choice) {
             case 7:
                 authService.logout();
@@ -160,14 +174,13 @@ public class Main {
                 System.out.println("Feature not yet implemented.");
         }
     }
-    
-    /**
-     * Helper method to get integer input with error handling.
-     */
+
+    // ================================
+    // Helper: integer input
+    // ================================
     private static int getIntInput() {
         try {
-            int value = Integer.parseInt(scanner.nextLine());
-            return value;
+            return Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
             return -1;
         }
