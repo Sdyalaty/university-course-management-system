@@ -80,6 +80,7 @@ public class Main {
         String password = scanner.nextLine();
         
         // TODO: Implement actual login with AuthenticationService
+        authService.login(username, password);
         System.out.println("Login functionality not yet implemented.");
     }
     
