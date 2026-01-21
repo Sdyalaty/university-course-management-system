@@ -2,17 +2,21 @@ package com.university;
 
 import com.university.auth.AuthenticationService;
 import com.university.auth.AuthorizationService;
+import com.university.auth.Permission;
+
 import com.university.models.Admin;
 import com.university.models.Instructor;
 import com.university.models.Student;
 import com.university.models.User;
+
 import com.university.services.UserService;
+import com.university.services.CourseService;
 
 import java.util.Scanner;
 
 /**
  * Main entry point for the University Management System.
- * Demonstrates authentication, authorization, and file-based persistence.
+ * Demonstrates authentication, authorization, user management, and course management.
  */
 public class Main {
 
@@ -22,6 +26,7 @@ public class Main {
     private static UserService userService = new UserService();
     private static AuthenticationService authService = new AuthenticationService(userService);
     private static AuthorizationService authorizationService = new AuthorizationService();
+    private static CourseService courseService = new CourseService();
 
     public static void main(String[] args) {
 
@@ -95,9 +100,6 @@ public class Main {
         }
     }
 
-    // ================================
-    // Perform login
-    // ================================
     private static void performLogin() {
         System.out.print("Username: ");
         String username = scanner.nextLine();
@@ -124,157 +126,27 @@ public class Main {
         int choice = getIntInput();
 
         switch (choice) {
-            case 1: // Manage Users
-                manageUsers();
+            case 1:
+                manageUsers(); // Your user management code
+                break;
+            case 2:
+                courseService.manageCourses(); // Teammate's course management code
+                break;
+            case 3:
+                System.out.println("View All Enrollments - Feature not yet implemented.");
+                break;
+            case 4:
+                System.out.println("Generate Reports - Feature not yet implemented.");
+                break;
+            case 5:
+                System.out.println("Send Announcements - Feature not yet implemented.");
                 break;
             case 6:
                 authService.logout();
                 System.out.println("Logged out successfully.");
                 break;
             default:
-                System.out.println("Feature not yet implemented.");
-        }
-    }
-
-    // ================================
-    // Manage Users (Admin)
-    // ================================
-    private static void manageUsers() {
-        System.out.println("\n=== Manage Users ===");
-        System.out.println("1. Create User");
-        System.out.println("2. View All Users");
-        System.out.println("3. Edit User");
-        System.out.println("4. Delete User");
-        System.out.println("5. Back to Admin Menu");
-        System.out.print("Choose an option: ");
-
-        int choice = getIntInput();
-
-        switch (choice) {
-            case 1:
-                createUser();
-                break;
-            case 2:
-                listAllUsers();
-                break;
-            case 3:
-                editUser();
-                break;
-            case 4:
-                deleteUser();
-                break;
-            case 5:
-                return; // Back to Admin menu
-            default:
-                System.out.println("Invalid option. Try again.");
-        }
-    }
-
-    // ================================
-    // Create a new user (Admin)
-    // ================================
-    private static void createUser() {
-        System.out.println("\n=== Create User ===");
-        System.out.print("Enter user type (ADMIN / INSTRUCTOR / STUDENT): ");
-        String type = scanner.nextLine().toUpperCase();
-
-        System.out.print("User ID: ");
-        String userId = scanner.nextLine();
-        System.out.print("Username: ");
-        String username = scanner.nextLine();
-        System.out.print("Password: ");
-        String password = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-        System.out.print("Full Name: ");
-        String fullName = scanner.nextLine();
-
-        User newUser;
-        switch (type) {
-            case "ADMIN":
-                newUser = new Admin(userId, username, password, email, fullName);
-                break;
-            case "INSTRUCTOR":
-                newUser = new Instructor(userId, username, password, email, fullName);
-                break;
-            case "STUDENT":
-                newUser = new Student(userId, username, password, email, fullName);
-                break;
-            default:
-                System.out.println("Invalid user type.");
-                return;
-        }
-
-        userService.addUser(newUser);
-        userService.saveToFile(USER_DATA_FILE);
-        System.out.println(type + " user created successfully!");
-    }
-
-    // ================================
-    // List all users (Admin)
-    // ================================
-    private static void listAllUsers() {
-        System.out.println("\n=== All Users ===");
-        for (User user : userService.getAllUsers()) {
-            System.out.println(user);
-        }
-    }
-
-    // ================================
-    // Edit user (Admin)
-    // ================================
-    private static void editUser() {
-        System.out.print("\nEnter the username of the user to edit: ");
-        String username = scanner.nextLine();
-
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            System.out.println("User not found.");
-            return;
-        }
-
-        System.out.println("Editing user: " + user);
-        System.out.print("New Username (leave blank to keep current): ");
-        String newUsername = scanner.nextLine();
-        if (!newUsername.isBlank()) user.setUsername(newUsername);
-
-        System.out.print("New Password (leave blank to keep current): ");
-        String newPassword = scanner.nextLine();
-        if (!newPassword.isBlank()) user.setPassword(newPassword);
-
-        System.out.print("New Email (leave blank to keep current): ");
-        String newEmail = scanner.nextLine();
-        if (!newEmail.isBlank()) user.setEmail(newEmail);
-
-        System.out.print("New Full Name (leave blank to keep current): ");
-        String newFullName = scanner.nextLine();
-        if (!newFullName.isBlank()) user.setFullName(newFullName);
-
-        userService.saveToFile(USER_DATA_FILE);
-        System.out.println("User updated successfully!");
-    }
-
-    // ================================
-    // Delete user (Admin)
-    // ================================
-    private static void deleteUser() {
-        System.out.print("\nEnter the username of the user to delete: ");
-        String username = scanner.nextLine();
-
-        User user = userService.findByUsername(username);
-        if (user == null) {
-            System.out.println("User not found.");
-            return;
-        }
-
-        System.out.print("Are you sure you want to delete " + user.getUsername() + "? (y/n): ");
-        String confirm = scanner.nextLine().toLowerCase();
-        if (confirm.equals("y")) {
-            userService.getAllUsers().remove(user);
-            userService.saveToFile(USER_DATA_FILE);
-            System.out.println("User deleted successfully!");
-        } else {
-            System.out.println("Deletion cancelled.");
+                System.out.println("Invalid option. Please try again.");
         }
     }
 
@@ -311,6 +183,74 @@ public class Main {
                 break;
             default:
                 System.out.println("Feature not yet implemented.");
+        }
+    }
+
+    // ================================
+    // User Management for Admin
+    // ================================
+    private static void manageUsers() {
+        System.out.println("\n=== User Management ===");
+        System.out.println("1. Create User");
+        System.out.println("2. View Users");
+        System.out.println("3. Back to Admin Menu");
+        System.out.print("Choose an option: ");
+
+        int choice = getIntInput();
+
+        switch (choice) {
+            case 1:
+                createUser();
+                break;
+            case 2:
+                viewUsers();
+                break;
+            case 3:
+                return;
+            default:
+                System.out.println("Invalid option. Returning to Admin Menu.");
+        }
+    }
+
+    private static void createUser() {
+        System.out.print("Enter role (ADMIN / INSTRUCTOR / STUDENT): ");
+        String role = scanner.nextLine().toUpperCase();
+        System.out.print("Enter userId: ");
+        String userId = scanner.nextLine();
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine();
+        System.out.print("Enter full name: ");
+        String fullName = scanner.nextLine();
+        System.out.print("Enter email: ");
+        String email = scanner.nextLine();
+
+        User user;
+        switch (role) {
+            case "ADMIN":
+                user = new Admin(userId, username, password, email, fullName);
+                break;
+            case "INSTRUCTOR":
+                user = new Instructor(userId, username, password, email, fullName);
+                break;
+            case "STUDENT":
+                user = new Student(userId, username, password, email, fullName);
+                break;
+            default:
+                System.out.println("Invalid role. User not created.");
+                return;
+        }
+
+        userService.addUser(user);
+        userService.saveToFile(USER_DATA_FILE);
+        System.out.println(role + " user created successfully!");
+    }
+
+    private static void viewUsers() {
+        System.out.println("\n=== All Users ===");
+        for (User user : userService.getAllUsers()) {
+            user.displayInfo();
         }
     }
 

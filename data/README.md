@@ -31,4 +31,7 @@ after the login process is sucessiful, the user will see what function they can 
 ***************************************************************************************
 *Student Faris Mohammed Noor(28084/2024)*
 This student is in charge of the course management.
-
+He made the classes that let the admin to create and delete classes. check if the course data is correct.
+Course.java= this has the data of one course(like code, name,credit, capacity)
+Course management= this keep all the courses in the list and has method to add, update delete and search for course
+*********************************************************************************************************************
