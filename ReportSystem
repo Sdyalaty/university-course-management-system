@@ -1,0 +1,11 @@
+public class ReportSystem {
+
+    public void generateReport() {
+        System.out.println("Report generated successfully");
+        System.out.println("Students report");
+        System.out.println("Courses report");
+        System.out.println("Grades report");
+    }
+}
+ReportSystem report = new ReportSystem();
+report.generateReport();
