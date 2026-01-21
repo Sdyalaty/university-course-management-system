@@ -1,32 +1,75 @@
 import java.util.ArrayList;
-import java.util.List;
 
-public class Main2 {
-    public static void main(String[] args) {
-        List<Course> courses = new ArrayList<>();
+public class CourseManager {
+    private ArrayList<Course> courses;
 
-        Course cs101 = new Course("CS101", "Intro to Programming", 2);
-        Course cs102 = new Course("CS102", "Data Structures", 2);
-        cs102.addPrerequisite("CS101");
+    public CourseManager() {
+        courses = new ArrayList<>();
+    }
 
-        courses.add(cs101);
-        courses.add(cs102);
+    public boolean addCourse(Course course) {
+        if (!course.isValid()) {
+            return false;
+        }
+        if (getCourseByCode(course.getCourseCode()) != null) {
+            return false;
+        }
+        courses.add(course);
+        return true;
+    }
 
-        List<String> studentCompletedCourses = new ArrayList<>();
-        String studentId = "S001";
+    public boolean updateCourse(String courseCode, String newName, String newDepartment, String newInstructor, int newCredits, int newCapacity) {
+        Course course = getCourseByCode(courseCode);
+        if (course == null) {
+            return false;
+        }
+        course.setCourseName(newName);
+        course.setDepartment(newDepartment);
+        course.setInstructorId(newInstructor);
+        course.setCredits(newCredits);
+        course.setCapacity(newCapacity);
+        return course.isValid();
+    }
 
-        boolean enrolled1 = cs101.enrollStudent(studentId, studentCompletedCourses);
-        System.out.println("Enrolled in CS101: " + enrolled1);
+    public boolean deleteCourse(String courseCode) {
+        Course course = getCourseByCode(courseCode);
+        if (course == null) {
+            return false;
+        }
+        courses.remove(course);
+        return true;
+    }
 
-        studentCompletedCourses.add("CS101");
+    public Course getCourseByCode(String courseCode) {
+        for (int i = 0; i < courses.size(); i++) {
+            if (courses.get(i).getCourseCode().equals(courseCode)) {
+                return courses.get(i);
+            }
+        }
+        return null;
+    }
 
-        boolean enrolled2 = cs102.enrollStudent(studentId, studentCompletedCourses);
-        System.out.println("Enrolled in CS102: " + enrolled2);
+    public ArrayList<Course> filterByDepartment(String department) {
+        ArrayList<Course> result = new ArrayList<>();
+        for (int i = 0; i < courses.size(); i++) {
+            if (courses.get(i).getDepartment().equalsIgnoreCase(department)) {
+                result.add(courses.get(i));
+            }
+        }
+        return result;
+    }
 
-        System.out.println("Students in CS101: " + cs101.getEnrolledStudents());
-        System.out.println("Students in CS102: " + cs102.getEnrolledStudents());
+    public ArrayList<Course> filterByInstructor(String instructorId) {
+        ArrayList<Course> result = new ArrayList<>();
+        for (int i = 0; i < courses.size(); i++) {
+            if (courses.get(i).getInstructorId().equalsIgnoreCase(instructorId)) {
+                result.add(courses.get(i));
+            }
+        }
+        return result;
+    }
 
-        cs101.dropStudent(studentId);
-        System.out.println("After drop, CS101 students: " + cs101.getEnrolledStudents());
+    public ArrayList<Course> getAllCourses() {
+        return courses;
     }
 }
